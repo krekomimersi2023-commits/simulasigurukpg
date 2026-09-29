@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pengelolaan Kinerja</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f3f4f6;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
+
+  <!-- ================= PAGE LOGIN ================= -->
+  <div id="loginPage" class="fixed inset-0 bg-gray-100 flex items-center justify-center z-50">
+    <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200 w-full max-w-md">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold text-xl">
+          <i data-lucide="graduation-cap"></i>
+        </div>
+        <h1 class="text-xl font-bold text-gray-800">Pengelolaan Kinerja</h1>
+      </div>
+      
+      <h2 class="text-2xl font-bold mb-2">Selamat Datang</h2>
+      <p class="text-sm text-gray-500 mb-6">Silakan masuk menggunakan akun Anda untuk melanjutkan.</p>
+
+      <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
+          <input type="text" id="inputNama" required placeholder="Contoh: Ahmad Zaki" 
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Gmail / Email</label>
+          <input type="email" id="inputEmail" required placeholder="nama@gmail.com" 
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Kata Sandi</label>
+          <input type="password" id="inputPassword" required placeholder="••••••••" 
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm">
+        </div>
+
+        <button type="submit" 
+          class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow transition duration-200 mt-2">
+          Masuk
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= DASHBOARD MAIN ================= -->
+  <div id="dashboardPage" class="hidden flex-1 flex flex-col min-h-screen">
+    
+    <!-- Top Navbar -->
+    <header class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between sticky top-0 z-10">
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-sm">
+            <i data-lucide="award"></i>
+          </div>
+          <span class="font-semibold text-lg text-gray-800">Pengelolaan Kinerja</span>
+        </div>
+        <span class="ml-4 bg-purple-100 text-purple-700 text-xs font-semibold px-3 py-1 rounded-full border border-purple-200 flex items-center gap-1">
+          <i data-lucide="calendar" class="w-3.5 h-3.5"></i> Januari - Desember 2025
+        </span>
+      </div>
+
+      <!-- User Info Right Top -->
+      <div class="flex items-center gap-2 cursor-pointer relative group">
+        <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 font-medium text-sm">
+          <i data-lucide="user"></i>
+        </div>
+        <span id="displayNama" class="text-sm font-medium text-gray-700">User</span>
+        <i data-lucide="chevron-down" class="w-4 h-4 text-gray-500"></i>
+
+        <div class="absolute right-0 top-full mt-1 bg-white border border-gray-200 shadow-md rounded-lg py-1 w-32 hidden group-hover:block z-20">
+          <button onclick="logout()" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50">Keluar</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Content Layout -->
+    <div class="flex flex-1">
+      
+      <!-- Sidebar Left -->
+      <aside id="mainSidebar" class="w-64 bg-white border-r border-gray-200 p-4 space-y-1 flex-shrink-0">
+        <button onclick="switchTab('beranda')" id="nav-beranda" class="w-full flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg text-sm font-medium">
+          <i data-lucide="home" class="w-5 h-5 text-gray-500"></i>
+          <span>Beranda</span>
+        </button>
+
+        <!-- Menu Guru Accordion -->
+        <div>
+          <button onclick="toggleGuruMenu()" class="w-full flex items-center justify-between px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg text-sm font-medium">
+            <div class="flex items-center gap-3">
+              <i data-lucide="users" class="w-5 h-5 text-gray-500"></i>
+              <span>Guru</span>
+            </div>
+            <i id="arrow-guru" data-lucide="chevron-down" class="w-4 h-4 text-gray-400 transition-transform"></i>
+          </button>
+
+          <div id="submenu-guru" class="hidden pl-11 pr-2 py-1 space-y-1">
+            <button onclick="switchTab('pegawai')" id="nav-pegawai" class="w-full text-left py-1.5 px-3 text-sm text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md font-medium">
+              Sebagai Pegawai
+            </button>
+          </div>
+        </div>
+
+        <button onclick="switchTab('notifikasi')" id="nav-notifikasi" class="w-full flex items-center justify-between px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg text-sm font-medium">
+          <div class="flex items-center gap-3">
+            <i data-lucide="bell" class="w-5 h-5 text-gray-500"></i>
+            <span>Notifikasi (0)</span>
+          </div>
+        </button>
+
+        <a href="#" class="flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg text-sm font-medium">
+          <i data-lucide="clock" class="w-5 h-5 text-gray-500"></i>
+          <span>Riwayat</span>
+        </a>
+
+        <a href="#" class="flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg text-sm font-medium">
+          <i data-lucide="help-circle" class="w-5 h-5 text-gray-500"></i>
+          <span>Hubungi Kami</span>
+        </a>
+      </aside>
+
+      <!-- Main Content Area -->
+      <main class="flex-1 p-6 space-y-6 max-w-6xl mx-auto w-full">
+        
+        <!-- HALAMAN 1: BERANDA -->
+        <div id="page-beranda" class="space-y-6">
+          <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm relative flex gap-5 items-start">
+            <div class="text-yellow-500 p-2 bg-yellow-50 rounded-full border border-yellow-100">
+              <i data-lucide="bell-ring" class="w-8 h-8"></i>
+            </div>
+            <div class="flex-1">
+              <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Info Penting:</p>
+              <h3 class="text-base font-bold text-gray-900 mt-0.5 mb-2">
+                Mulai tahun 2025, Pengelolaan Kinerja akan menjadi lebih sederhana dan lebih bermakna!
+              </h3>
+              <ul class="list-disc list-inside space-y-1 text-sm text-gray-600">
+                <li>Pengembangan Kompetensi tidak lagi berbasis poin. Kini berbasis refleksi.</li>
+                <li>Bukti Dukung dan Dokumen Akuntabilitas tidak lagi perlu diunggah di sistem.</li>
+                <li>Periode tidak lagi 2 kali dalam setahun. Kini hanya 1 kali dalam setahun.</li>
+              </ul>
+            </div>
+            <button class="bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-lg text-sm font-medium self-start">
+              Selengkapnya
+            </button>
+          </div>
+        </div>
+
+        <!-- HALAMAN 2: SEBAGAI PEGAWAI (GURU) -->
+        <div id="page-pegawai" class="hidden space-y-6">
+          <div class="bg-white border border-gray-200 rounded-xl p-6 shadow-sm flex items-center justify-between">
+            <div class="flex items-center gap-6">
+              <div class="w-16 h-16 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 flex-shrink-0 border border-blue-100">
+                <i data-lucide="file-signature" class="w-8 h-8"></i>
+              </div>
+              <div>
+                <span class="text-xs font-bold text-blue-600 uppercase tracking-wider">1-31 JANUARI</span>
+                <h3 class="text-lg font-bold text-gray-900 mt-0.5">Mulai Perencanaan Kinerja</h3>
+                <p class="text-sm text-gray-600 max-w-xl mt-1">
+                  Isi Praktik Pembelajaran, Pengembangan Kompetensi, Tugas Tambahan, dan Perilaku Kerja.
+                </p>
+              </div>
+            </div>
+            <button onclick="switchTab('cek-data')" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-2.5 rounded-lg shadow-sm">
+              Mulai
+            </button>
+          </div>
+        </div>
+
+        <!-- HALAMAN 3: CEK DATA DIRI ANDA -->
+        <div id="page-cek-data" class="hidden space-y-6">
+          <div class="bg-white border border-gray-200 rounded-xl p-8 shadow-sm space-y-6 max-w-4xl mx-auto">
+            <h2 class="text-xl font-bold text-gray-900">Cek data diri Anda</h2>
+
+            <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 flex gap-3 items-start text-amber-900 text-sm">
+              <i data-lucide="info" class="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"></i>
+              <p class="leading-relaxed">
+                Pastikan Jenjang Jabatan sesuai karena akan mempengaruhi Perencanaan Kinerja. Saat ini data hanya bisa diedit satu kali saja, ya.
+              </p>
+            </div>
+
+            <div class="space-y-4 text-sm text-gray-700 pt-2 border-t border-gray-100">
+              <div class="grid grid-cols-12 gap-2">
+                <span class="col-span-4 font-medium text-gray-600">Nama</span>
+                <span class="col-span-1 text-center">:</span>
+                <span id="dataNama" class="col-span-7 font-semibold text-gray-900">Nur Apriyanti</span>
+              </div>
+              <div class="grid grid-cols-12 gap-2">
+                <span class="col-span-4 font-medium text-gray-600">NIP</span>
+                <span class="col-span-1 text-center">:</span>
+                <span id="dataNip" class="col-span-7 font-semibold text-gray-900">199204122019032001</span>
+              </div>
+              <div class="grid grid-cols-12 gap-2">
+                <span class="col-span-4 font-medium text-gray-600">Status Kepegawaian</span>
+                <span class="col-span-1 text-center">:</span>
+                <span id="dataStatus" class="col-span-7 font-semibold text-gray-900">PNS</span>
+              </div>
+              <div class="grid grid-cols-12 gap-2">
+                <span class="col-span-4 font-medium text-gray-600">Pangkat, Golongan Ruang</span>
+                <span class="col-span-1 text-center">:</span>
+                <span id="dataPangkat" class="col-span-7 font-semibold text-gray-900">Penata Muda, III/a</span>
+              </div>
+              <div class="grid grid-cols-12 gap-2">
+                <span class="col-span-4 font-medium text-gray-600">Jenjang Jabatan</span>
+                <span class="col-span-1 text-center">:</span>
+                <span id="dataJenjang" class="col-span-7 font-semibold text-gray-900">Ahli Pertama</span>
+              </div>
+              <div class="grid grid-cols-12 gap-2">
+                <span class="col-span-4 font-medium text-gray-600">Satuan Pendidikan Induk</span>
+                <span class="col-span-1 text-center">:</span>
+                <span id="dataSatuan" class="col-span-7 font-semibold text-gray-900"> Universitas Sultan Ageng Tirtayasa</span>
+              </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-6 border-t border-gray-100">
+              <button onclick="openModalEdit()" class="px-6 py-2 border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 font-medium rounded-lg shadow-sm text-sm">
+                Edit
+              </button>
+              <button onclick="openModalConfirm()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-sm text-sm">
+                Data sudah sesuai
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- HALAMAN 4: TUGAS POKOK 5M -->
+        <div id="page-tugas-5m" class="hidden space-y-6 pb-24">
+          <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <div class="flex items-center justify-between text-xs font-semibold text-gray-500 overflow-x-auto pb-1">
+              <div class="flex items-center gap-2 text-blue-600 border-b-2 border-blue-600 pb-2 px-3 flex-shrink-0">
+                <span class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">1</span>
+                <span>Pelaksanaan Tugas Pokok 5M</span>
+              </div>
+              <div onclick="switchTab('praktik-kinerja')" class="flex items-center gap-2 px-3 pb-2 flex-shrink-0 cursor-pointer">
+                <span class="w-6 h-6 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center font-bold">2</span>
+                <span>Praktik Kinerja</span>
+              </div>
+              <div class="flex items-center gap-2 px-3 pb-2 flex-shrink-0">
+                <span class="w-6 h-6 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center font-bold">3</span>
+                <span>Pengembangan Kompetensi</span>
+              </div>
+              <div class="flex items-center gap-2 px-3 pb-2 flex-shrink-0">
+                <span class="w-6 h-6 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center font-bold">4</span>
+                <span>Perilaku Kerja</span>
+              </div>
+              <div class="flex items-center gap-2 px-3 pb-2 flex-shrink-0">
+                <span class="w-6 h-6 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center font-bold">5</span>
+                <span>Rangkuman</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white border border-gray-200 rounded-xl p-8 shadow-sm space-y-6">
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 bg-blue-50 border border-blue-100 rounded-xl flex items-center justify-center text-blue-600 flex-shrink-0 mt-1">
+                <i data-lucide="award" class="w-6 h-6"></i>
+              </div>
+              <div>
+                <h2 class="text-lg font-bold text-gray-900">Tugas Pokok (5M)</h2>
+                <p class="text-sm text-gray-500 mt-0.5">Guru melakukan tugas keseharian dan tambahan di satuan pendidikan, tidak perlu mengunggah bukti dukung apapun.</p>
+              </div>
+            </div>
+
+            <div class="space-y-4">
+              <div class="p-4 border border-gray-200 rounded-xl bg-white text-sm text-gray-800 font-medium">
+                1.&nbsp;&nbsp;Guru merencanakan pembelajaran atau pembimbingan dalam mendukung pembelajaran yang bermutu untuk semua
+              </div>
+              <div class="p-4 border border-gray-200 rounded-xl bg-white text-sm text-gray-800 font-medium">
+                2.&nbsp;&nbsp;Guru membimbing dan melatih peserta didik dalam mendukung pembelajaran yang bermutu untuk semua
+              </div>
+              <div class="p-4 border border-gray-200 rounded-xl bg-white text-sm text-gray-800 font-medium">
+                3.&nbsp;&nbsp;Guru melaksanakan pembelajaran atau pembimbingan dalam mendukung pembelajaran yang bermutu untuk semua
+              </div>
+              <div class="p-4 border border-gray-200 rounded-xl bg-white text-sm text-gray-800 font-medium">
+                4.&nbsp;&nbsp;Guru menilai hasil pembelajaran atau pembimbingan dalam mendukung pembelajaran yang bermutu untuk semua
+              </div>
+            </div>
+
+            <div id="tugasTambahanContainer" class="space-y-4">
+              <div class="tugas-item p-4 border border-blue-200 bg-blue-50/50 rounded-xl space-y-2">
+                <label class="block text-sm font-semibold text-gray-800">
+                  <span class="tugas-label">5.1</span>. Guru melaksanakan tugas tambahan (opsional)
+                </label>
+                <div class="flex gap-3 items-center">
+                  <select class="flex-1 px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <option value="" selected disabled>Pilih</option>
+                    <option value="1">Wali Kelas</option>
+                    <option value="2">Pembina Ekstrakurikuler</option>
+                    <option value="3">Kepala Laboratorium</option>
+                    <option value="4">Kepala Perpustakaan</option>
+                    <option value="5">Guru Piket</option>
+                  </select>
+                  <button onclick="removeTugas(this)" class="px-4 py-2.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg text-sm font-medium shadow-sm">
+                    Hapus
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <button onclick="addTugasTambahan()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg text-sm flex items-center gap-1.5 transition">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i> Tambah
+              </button>
+            </div>
+          </div>
+
+          <!-- Bottom Action Bar 5M -->
+          <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-3 px-8 flex justify-end gap-3 z-30 shadow-lg">
+            <button class="px-6 py-2.5 border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 font-semibold rounded-lg text-sm shadow-sm">
+              Simpan draf
+            </button>
+            <button onclick="switchTab('praktik-kinerja')" class="px-6 py-2.5 bg-gray-900 hover:bg-gray-800 text-white font-semibold rounded-lg text-sm shadow-sm">
+              Ke Praktik Kinerja
+            </button>
+          </div>
+        </div>
+
+        <!-- HALAMAN 5: PRAKTIK KINERJA -->
+        <div id="page-praktik-kinerja" class="hidden space-y-6 pb-24">
+          
+          <!-- Stepper Tab Header -->
+          <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+            <div class="flex items-center justify-between text-xs font-semibold text-gray-500 overflow-x-auto pb-1">
+              <div onclick="switchTab('tugas-5m')" class="flex items-center gap-2 px-3 pb-2 flex-shrink-0 cursor-pointer">
+                <span class="w-6 h-6 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center font-bold">1</span>
+                <span>Pelaksanaan Tugas Pokok 5M</span>
+              </div>
+              <div class="flex items-center gap-2 text-blue-600 border-b-2 border-blue-600 pb-2 px-3 flex-shrink-0">
+                <span class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">2</span>
+                <span>Praktik Kinerja</span>
+              </div>
+              <div class="flex items-center gap-2 px-3 pb-2 flex-shrink-0">
+                <span class="w-6 h-6 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center font-bold">3</span>
+                <span>Pengembangan Kompetensi</span>
+              </div>
+              <div class="flex items-center gap-2 px-3 pb-2 flex-shrink-0">
+                <span class="w-6 h-6 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center font-bold">4</span>
+                <span>Perilaku Kerja</span>
+              </div>
+              <div class="flex items-center gap-2 px-3 pb-2 flex-shrink-0">
+                <span class="w-6 h-6 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center font-bold">5</span>
+                <span>Rangkuman</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Title & Information Banner -->
+          <div class="bg-white border border-gray-200 rounded-xl p-8 shadow-sm space-y-6">
+            <div>
+              <h2 class="text-lg font-bold text-gray-900">Pilih indikator untuk menjadi fokus peningkatan kinerja Anda</h2>
+              <p class="text-sm text-gray-500 mt-1">
+                Kami sediakan rekomendasi berdasarkan <a href="#" class="text-blue-600 underline font-medium">Rapor Pendidikan Satdik Anda</a> versi terakhir.
+              </p>
+            </div>
+
+            <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 flex items-center gap-8 text-sm">
+              <div>
+                <span class="font-bold text-gray-800 block">Kualitas</span>
+                <span class="font-bold text-gray-800 block">Pembelajaran</span>
+              </div>
+              <div class="border-l border-gray-300 h-10"></div>
+              <div>
+                <span class="text-gray-500 block text-xs font-semibold">Dimensi Prioritas:</span>
+                <span class="text-gray-700 font-medium">Tidak ada. Pilih sesuai kebutuhan Anda.</span>
+              </div>
+            </div>
+
+            <!-- Grid 8 Kartu Indikator -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              
+              <!-- Card 1 -->
+              <div onclick="selectIndikator(this)" class="indikator-card border border-gray-200 hover:border-blue-400 bg-white rounded-xl p-5 cursor-pointer transition flex flex-col justify-between space-y-4 shadow-xs">
+                <div class="space-y-3">
+                  <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center text-2xl">
+                    📈
+                  </div>
+                  <h3 class="font-bold text-gray-900 text-base">Penerapan Disiplin Positif</h3>
+                  <p class="text-xs text-gray-500 leading-relaxed">
+                    Upaya menerapkan prinsip disiplin positif untuk mengelola perilaku dan kebiasaan kelas yang disepakati bersama.
+                  </p>
+                </div>
+                <div>
+                  <span class="inline-block bg-emerald-50 text-emerald-700 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-emerald-100">
+                    Dimensi: Manajemen Kelas
+                  </span>
+                </div>
+              </div>
+
+              <!-- Card 2 -->
+              <div onclick="selectIndikator(this)" class="indikator-card border border-gray-200 hover:border-blue-400 bg-white rounded-xl p-5 cursor-pointer transition flex flex-col justify-between space-y-4 shadow-xs">
+                <div class="space-y-3">
+                  <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-lg flex items-center justify-center text-2xl">
+                    😊
+                  </div>
+                  <h3 class="font-bold text-gray-900 text-base">Keteraturan Suasana Kelas</h3>
+                  <p class="text-xs text-gray-500 leading-relaxed">
+                    Upaya membangun suasana kelas yang kondusif untuk proses belajar, dengan minimal gangguan yang mengalihkan perhatian peserta didik.
+                  </p>
+                </div>
+                <div>
+                  <span class="inline-block bg-emerald-50 text-emerald-700 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-emerald-100">
+                    Dimensi: Manajemen Kelas
+                  </span>
+                </div>
+              </div>
+
+              <!-- Card 3 -->
+              <div onclick="selectIndikator(this)" class="indikator-card border border-gray-200 hover:border-blue-400 bg-white rounded-xl p-5 cursor-pointer transition flex flex-col justify-between space-y-4 shadow-xs">
+                <div class="space-y-3">
+                  <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center text-2xl">
+                    💬
+                  </div>
+                  <h3 class="font-bold text-gray-900 text-base">Umpan Balik Konstruktif</h3>
+                  <p class="text-xs text-gray-500 leading-relaxed">
+                    Upaya penyampaian informasi tentang kemajuan proses dan capaian pembelajaran kepada peserta didik untuk menumbuhkan motivasi.
+                  </p>
+                </div>
+                <div>
+                  <span class="inline-block bg-emerald-50 text-emerald-700 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-emerald-100">
+                    Dimensi: Dukungan Psikologis
+                  </span>
+                </div>
+              </div>
+
+              <!-- Card 4 -->
+              <div onclick="selectIndikator(this)" class="indikator-card border border-gray-200 hover:border-blue-400 bg-white rounded-xl p-5 cursor-pointer transition flex flex-col justify-between space-y-4 shadow-xs">
+                <div class="space-y-3">
+                  <div class="w-12 h-12 bg-rose-50 text-rose-600 rounded-lg flex items-center justify-center text-2xl">
+                    ❤️
+                  </div>
+                  <h3 class="font-bold text-gray-900 text-base">Perhatian dan Kepedulian</h3>
+                  <p class="text-xs text-gray-500 leading-relaxed">
+                    Upaya pemberian perhatian dan dukungan sesuai dengan kebutuhan belajar setiap peserta didik untuk menumbuhkan motivasi belajar.
+                  </p>
+                </div>
+                <div>
+                  <span class="inline-block bg-emerald-50 text-emerald-700 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-emerald-100">
+                    Dimensi: Dukungan Psikologis
+                  </span>
+                </div>
+              </div>
+
+              <!-- Card 5 -->
+              <div onclick="selectIndikator(this)" class="indikator-card border border-gray-200 hover:border-blue-400 bg-white rounded-xl p-5 cursor-pointer transition flex flex-col justify-between space-y-4 shadow-xs">
+                <div class="space-y-3">
+                  <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center text-2xl">
+                    📖
+                  </div>
+                  <h3 class="font-bold text-gray-900 text-base">Ekspektasi pada Peserta Didik</h3>
+                  <p class="text-xs text-gray-500 leading-relaxed">
+                    Upaya mengkomunikasikan ekspektasi yang tinggi kepada semua dan setiap peserta didik untuk menumbuhkan motivasi belajar intrinsik.
+                  </p>
+                </div>
+                <div>
+                  <span class="inline-block bg-emerald-50 text-emerald-700 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-emerald-100">
+                    Dimensi: Dukungan Psikologis
+                  </span>
+                </div>
+              </div>
+
+              <!-- Card 6 -->
+              <div onclick="selectIndikator(this)" class="indikator-card border border-gray-200 hover:border-blue-400 bg-white rounded-xl p-5 cursor-pointer transition flex flex-col justify-between space-y-4 shadow-xs">
+                <div class="space-y-3">
+                  <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center text-2xl">
+                    🤝
+                  </div>
+                  <h3 class="font-bold text-gray-900 text-base">Aktivitas Interaktif</h3>
+                  <p class="text-xs text-gray-500 leading-relaxed">
+                    Upaya pembelajaran yang memfasilitasi kolaborasi dan komunikasi antar peserta didik untuk meningkatkan pemahaman.
+                  </p>
+                </div>
+                <div>
+                  <span class="inline-block bg-emerald-50 text-emerald-700 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-emerald-100">
+                    Dimensi: Metode Pembelajaran
+                  </span>
+                </div>
+              </div>
+
+              <!-- Card 7 -->
+              <div onclick="selectIndikator(this)" class="indikator-card border border-gray-200 hover:border-blue-400 bg-white rounded-xl p-5 cursor-pointer transition flex flex-col justify-between space-y-4 shadow-xs">
+                <div class="space-y-3">
+                  <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center text-2xl">
+                    🖥️
+                  </div>
+                  <h3 class="font-bold text-gray-900 text-base">Instruksi Pembelajaran</h3>
+                  <p class="text-xs text-gray-500 leading-relaxed">
+                    Upaya penjelasan terstruktur tentang konsep dan aktivitas pembelajaran disertai demonstrasi yang memandu peserta didik.
+                  </p>
+                </div>
+                <div>
+                  <span class="inline-block bg-emerald-50 text-emerald-700 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-emerald-100">
+                    Dimensi: Metode Pembelajaran
+                  </span>
+                </div>
+              </div>
+
+              <!-- Card 8 -->
+              <div onclick="selectIndikator(this)" class="indikator-card border border-gray-200 hover:border-blue-400 bg-white rounded-xl p-5 cursor-pointer transition flex flex-col justify-between space-y-4 shadow-xs">
+                <div class="space-y-3">
+                  <div class="w-12 h-12 bg-cyan-50 text-cyan-600 rounded-lg flex items-center justify-center text-2xl">
+                    📋
+                  </div>
+                  <h3 class="font-bold text-gray-900 text-base">Instruksi yang Adaptif</h3>
+                  <p class="text-xs text-gray-500 leading-relaxed">
+                    Upaya penyesuaian praktik pembelajaran sebagai respon terhadap respon peserta didik terhadap kebutuhan belajarnya.
+                  </p>
+                </div>
+                <div>
+                  <span class="inline-block bg-emerald-50 text-emerald-700 text-[11px] font-semibold px-2.5 py-1 rounded-md border border-emerald-100">
+                    Dimensi: Metode Pembelajaran
+                  </span>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Bottom Action Bar Praktik Kinerja -->
+          <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-3 px-8 flex justify-end gap-3 z-30 shadow-lg">
+            <button class="px-6 py-2.5 border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 font-semibold rounded-lg text-sm shadow-sm">
+              Simpan draf
+            </button>
+            <button id="btnKeKompetensi" disabled class="px-6 py-2.5 bg-gray-300 text-gray-500 font-semibold rounded-lg text-sm shadow-sm cursor-not-allowed transition">
+              Ke Pengembangan Kompetensi
+            </button>
+          </div>
+
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ================= MODAL EDIT DATA DIRI ================= -->
+  <div id="modalEdit" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 space-y-4">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h3 class="text-lg font-bold text-gray-800">Edit Data Diri</h3>
+        <button onclick="closeModalEdit()" class="text-gray-400 hover:text-gray-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form id="formEditData" onsubmit="saveEditData(event)" class="space-y-3 text-sm">
+        <div>
+          <label class="block font-medium text-gray-700 mb-1">Nama</label>
+          <input type="text" id="editNama" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block font-medium text-gray-700 mb-1">NIP</label>
+          <input type="text" id="editNip" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block font-medium text-gray-700 mb-1">Status Kepegawaian</label>
+          <input type="text" id="editStatus" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block font-medium text-gray-700 mb-1">Pangkat, Golongan Ruang</label>
+          <input type="text" id="editPangkat" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block font-medium text-gray-700 mb-1">Jenjang Jabatan</label>
+          <input type="text" id="editJenjang" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        </div>
+        <div>
+          <label class="block font-medium text-gray-700 mb-1">Satuan Pendidikan Induk</label>
+          <input type="text" id="editSatuan" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        </div>
+
+        <div class="flex justify-end gap-2 pt-4 border-t">
+          <button type="button" onclick="closeModalEdit()" class="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-50">Batal</button>
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">Simpan Perubahan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL KONFIRMASI DATA DIRI ================= -->
+  <div id="modalConfirm" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 space-y-5 relative">
+      <button onclick="closeModalConfirm()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="space-y-3">
+        <div class="w-12 h-12 bg-blue-50 border border-blue-100 rounded-xl flex items-center justify-center text-blue-600">
+          <i data-lucide="file-check" class="w-7 h-7"></i>
+        </div>
+        <h3 class="text-lg font-bold text-gray-900">Apakah data diri Anda sudah benar?</h3>
+      </div>
+
+      <div class="space-y-2.5 text-xs text-gray-700 bg-gray-50 p-4 rounded-xl border border-gray-100">
+        <div class="grid grid-cols-12 gap-2">
+          <span class="col-span-5 text-gray-500">Nama</span>
+          <span class="col-span-1 text-center">:</span>
+          <span id="confirmNama" class="col-span-6 font-semibold text-gray-900">Nur Apriyanti</span>
+        </div>
+        <div class="grid grid-cols-12 gap-2">
+          <span class="col-span-5 text-gray-500">NIP</span>
+          <span class="col-span-1 text-center">:</span>
+          <span id="confirmNip" class="col-span-6 font-semibold text-gray-900">199204122019032001</span>
+        </div>
+        <div class="grid grid-cols-12 gap-2">
+          <span class="col-span-5 text-gray-500">Status Kepegawaian</span>
+          <span class="col-span-1 text-center">:</span>
+          <span id="confirmStatus" class="col-span-6 font-semibold text-gray-900">PNS</span>
+        </div>
+        <div class="grid grid-cols-12 gap-2">
+          <span class="col-span-5 text-gray-500">Pangkat, Golongan Ruang</span>
+          <span class="col-span-1 text-center">:</span>
+          <span id="confirmPangkat" class="col-span-6 font-semibold text-gray-900">Penata Muda, III/a</span>
+        </div>
+        <div class="grid grid-cols-12 gap-2">
+          <span class="col-span-5 text-gray-500">Jenjang Jabatan</span>
+          <span class="col-span-1 text-center">:</span>
+          <span id="confirmJenjang" class="col-span-6 font-semibold text-gray-900">Ahli Pertama</span>
+        </div>
+        <div class="grid grid-cols-12 gap-2">
+          <span class="col-span-5 text-gray-500">Satuan Pendidikan Induk</span>
+          <span class="col-span-1 text-center">:</span>
+          <span id="confirmSatuan" class="col-span-6 font-semibold text-gray-900">Universitas Indonesia</span>
+        </div>
+      </div>
+
+      <p class="text-xs text-gray-500 leading-relaxed">
+        Saat ini data hanya bisa diedit satu kali saja. Pastikan sesuai, ya.
+      </p>
+
+      <div class="flex items-center gap-3 pt-2">
+        <button onclick="goToTugas5M()" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg text-sm shadow-sm transition">
+          Data sudah benar
+        </button>
+        <button onclick="closeModalConfirm()" class="flex-1 py-2.5 border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 font-medium rounded-lg text-sm shadow-sm transition">
+          Cek ulang
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const nama = document.getElementById('inputNama').value;
+      if (nama.trim() !== "") {
+        document.getElementById('displayNama').innerText = nama;
+        document.getElementById('dataNama').innerText = nama;
+        document.getElementById('loginPage').classList.add('hidden');
+        document.getElementById('dashboardPage').classList.remove('hidden');
+      }
+    }
+
+    function logout() {
+      document.getElementById('loginPage').classList.remove('hidden');
+      document.getElementById('dashboardPage').classList.add('hidden');
+      document.getElementById('loginForm').reset();
+    }
+
+    function toggleGuruMenu() {
+      const submenu = document.getElementById('submenu-guru');
+      const arrow = document.getElementById('arrow-guru');
+      submenu.classList.toggle('hidden');
+      arrow.classList.toggle('rotate-180');
+    }
+
+    function switchTab(tabName) {
+      document.getElementById('page-beranda').classList.add('hidden');
+      document.getElementById('page-pegawai').classList.add('hidden');
+      document.getElementById('page-cek-data').classList.add('hidden');
+      document.getElementById('page-tugas-5m').classList.add('hidden');
+      document.getElementById('page-praktik-kinerja').classList.add('hidden');
+
+      document.getElementById('nav-beranda').classList.remove('bg-gray-100');
+      document.getElementById('nav-pegawai').classList.remove('bg-blue-50', 'text-blue-600', 'font-semibold');
+
+      if (tabName === 'beranda') {
+        document.getElementById('page-beranda').classList.remove('hidden');
+        document.getElementById('nav-beranda').classList.add('bg-gray-100');
+      } else if (tabName === 'pegawai') {
+        document.getElementById('page-pegawai').classList.remove('hidden');
+        document.getElementById('nav-pegawai').classList.add('bg-blue-50', 'text-blue-600', 'font-semibold');
+      } else if (tabName === 'cek-data') {
+        document.getElementById('page-cek-data').classList.remove('hidden');
+        document.getElementById('nav-pegawai').classList.add('bg-blue-50', 'text-blue-600', 'font-semibold');
+      } else if (tabName === 'tugas-5m') {
+        document.getElementById('page-tugas-5m').classList.remove('hidden');
+        document.getElementById('nav-pegawai').classList.add('bg-blue-50', 'text-blue-600', 'font-semibold');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (tabName === 'praktik-kinerja') {
+        document.getElementById('page-praktik-kinerja').classList.remove('hidden');
+        document.getElementById('nav-pegawai').classList.add('bg-blue-50', 'text-blue-600', 'font-semibold');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    // Modal Edit Operations
+    function openModalEdit() {
+      document.getElementById('editNama').value = document.getElementById('dataNama').innerText;
+      document.getElementById('editNip').value = document.getElementById('dataNip').innerText;
+      document.getElementById('editStatus').value = document.getElementById('dataStatus').innerText;
+      document.getElementById('editPangkat').value = document.getElementById('dataPangkat').innerText;
+      document.getElementById('editJenjang').value = document.getElementById('dataJenjang').innerText;
+      document.getElementById('editSatuan').value = document.getElementById('dataSatuan').innerText;
+
+      document.getElementById('modalEdit').classList.remove('hidden');
+      document.getElementById('modalEdit').classList.add('flex');
+    }
+
+    function closeModalEdit() {
+      document.getElementById('modalEdit').classList.add('hidden');
+      document.getElementById('modalEdit').classList.remove('flex');
+    }
+
+    function saveEditData(e) {
+      e.preventDefault();
+      const newNama = document.getElementById('editNama').value;
+      document.getElementById('dataNama').innerText = newNama;
+      document.getElementById('displayNama').innerText = newNama;
+      
+      document.getElementById('dataNip').innerText = document.getElementById('editNip').value;
+      document.getElementById('dataStatus').innerText = document.getElementById('editStatus').value;
+      document.getElementById('dataPangkat').innerText = document.getElementById('editPangkat').value;
+      document.getElementById('dataJenjang').innerText = document.getElementById('editJenjang').value;
+      document.getElementById('dataSatuan').innerText = document.getElementById('editSatuan').value;
+
+      closeModalEdit();
+    }
+
+    // Modal Konfirmasi Data Operations
+    function openModalConfirm() {
+      document.getElementById('confirmNama').innerText = document.getElementById('dataNama').innerText;
+      document.getElementById('confirmNip').innerText = document.getElementById('dataNip').innerText;
+      document.getElementById('confirmStatus').innerText = document.getElementById('dataStatus').innerText;
+      document.getElementById('confirmPangkat').innerText = document.getElementById('dataPangkat').innerText;
+      document.getElementById('confirmJenjang').innerText = document.getElementById('dataJenjang').innerText;
+      document.getElementById('confirmSatuan').innerText = document.getElementById('dataSatuan').innerText;
+
+      document.getElementById('modalConfirm').classList.remove('hidden');
+      document.getElementById('modalConfirm').classList.add('flex');
+    }
+
+    function closeModalConfirm() {
+      document.getElementById('modalConfirm').classList.add('hidden');
+      document.getElementById('modalConfirm').classList.remove('flex');
+    }
+
+    function goToTugas5M() {
+      closeModalConfirm();
+      switchTab('tugas-5m');
+    }
+
+    // Dynamic Tugas Tambahan Operations
+    function updateTugasLabels() {
+      const labels = document.querySelectorAll('.tugas-label');
+      labels.forEach((label, index) => {
+        label.innerText = `5.${index + 1}`;
+      });
+    }
+
+    function addTugasTambahan() {
+      const container = document.getElementById('tugasTambahanContainer');
+      const count = container.children.length + 1;
+      
+      const newTugas = document.createElement('div');
+      newTugas.className = "tugas-item p-4 border border-blue-200 bg-blue-50/50 rounded-xl space-y-2";
+      newTugas.innerHTML = `
+        <label class="block text-sm font-semibold text-gray-800">
+          <span class="tugas-label">5.${count}</span>. Guru melaksanakan tugas tambahan (opsional)
+        </label>
+        <div class="flex gap-3 items-center">
+          <select class="flex-1 px-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            <option value="" selected disabled>Pilih</option>
+            <option value="1">Wali Kelas</option>
+            <option value="2">Pembina Ekstrakurikuler</option>
+            <option value="3">Kepala Laboratorium</option>
+            <option value="4">Kepala Perpustakaan</option>
+            <option value="5">Guru Piket</option>
+          </select>
+          <button onclick="removeTugas(this)" class="px-4 py-2.5 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg text-sm font-medium shadow-sm">
+            Hapus
+          </button>
+        </div>
+      `;
+      container.appendChild(newTugas);
+      updateTugasLabels();
+    }
+
+    function removeTugas(button) {
+      const container = document.getElementById('tugasTambahanContainer');
+      if (container.children.length > 1) {
+        button.closest('.tugas-item').remove();
+        updateTugasLabels();
+      } else {
+        alert('Minimal harus ada satu baris tugas tambahan.');
+      }
+    }
+
+    
+    function selectIndikator(selectedCard) {
+      const allCards = document.querySelectorAll('.indikator-card');
+      allCards.forEach(card => {
+        card.classList.remove('bg-blue-50/60', 'border-blue-500', 'ring-2', 'ring-blue-500/20');
+        card.classList.add('bg-white', 'border-gray-200');
+      });
+
+      selectedCard.classList.remove('bg-white', 'border-gray-200');
+      selectedCard.classList.add('bg-blue-50/60', 'border-blue-500', 'ring-2', 'ring-blue-500/20');
+
+      const btn = document.getElementById('btnKeKompetensi');
+      btn.disabled = false;
+      btn.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+      btn.classList.add('bg-gray-900', 'hover:bg-gray-800', 'text-white', 'cursor-pointer');
+    }
+  </script>
+</body>
+</html>
